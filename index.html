@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./css/index.css" />
+    <title>Cadastro de Carros</title>
+</head>
+<body>
+    <div id="div-cadastro">
+        <h1 data-js="companyName"></h1>
+        <form>
+            <label>Imagem do carro</label>
+            <input type="url" data-js="entryData"/>
+            <label>Marca/modelo</label>
+            <input type="text" data-js="entryData"/>
+            <label>Ano</label>
+            <input type="text" data-js="entryData"/>
+            <label>Placa</label>
+            <input type="text" data-js="entryData"/>
+            <label>Cor</label>
+            <input type="text" data-js="entryData"/>
+            <button data-js="registerButton">Cadastrar</button>
+        </form>
+    </div>
+    <div id="div-catalogo">
+        <table data-js="table" >
+            <thead>
+                <tr data-js="tableRow">
+                    <td>Imagem</td>
+                    <td>Marca/Modelo</td>
+                    <td>Ano</td>
+                    <td>Placa</td>
+                    <td>Cor</td>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+    <script src="./js/DOM.js"></script>
+    <script src="./js/main.js"></script>
+</body>
+</html>
