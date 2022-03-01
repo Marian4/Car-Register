@@ -1,7 +1,7 @@
 (function(win, doc){
     'use strict';
     function DOM(datajs){
-        this.element = doc.querySelectorAll(datajs);
+        this.element = doc.querySelectorAll(datajs) || '';
         this.func;
         this.event;
     }

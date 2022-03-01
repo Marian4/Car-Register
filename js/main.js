@@ -19,14 +19,20 @@
     var $inputs = new DOM('[data-js="entryData"]');
     var $table = doc.querySelector('[data-js="table"]');
     var $submit = doc.querySelector('[data-js="registerButton"]');
+    var $deleteButtons = new DOM();
 
     function app(){
         return {
             init: function(){
                 addCompanyName();
-                $submit.addEventListener('click', addCarFunction, false);
+                addEventsFunction();
             }
         };
+    }
+
+    function addEventsFunction(){
+        $submit.addEventListener('click', addCarFunction, false);
+        $deleteButtons.on('click', deleteCar);
     }
 
     function addCompanyName(){
@@ -45,7 +51,9 @@
         event.preventDefault();
         var newItem = createNewItem();
         $table.appendChild(newItem);
+        $deleteButtons = new DOM('[data-js="deleteCar"]');
         clearFields();
+        addEventsFunction();
     }
 
     function createNewItem(){
@@ -62,8 +70,8 @@
             $row.appendChild(tdClone);
         });
         var removeButton = doc.createElement('button');
-        console.log(removeButton);
         removeButton.textContent = 'Deletar';
+        removeButton.setAttribute('data-js', 'deleteCar');
         $td.appendChild(removeButton);
         $row.appendChild($td);
         return $row;
@@ -79,6 +87,12 @@
         $inputs.element.forEach(function(input){
             input.value = '';
         });
+    }
+
+    function deleteCar(event){
+        event.preventDefault();
+        var car = this.parentNode.parentNode;
+        car.parentNode.removeChild(car);
     }
 
     app().init();
