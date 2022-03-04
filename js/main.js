@@ -1,15 +1,5 @@
 (function(DOM, doc) {
     'use strict';
-
-    /*
-    Agora vamos criar a funcionalidade de "remover" um carro. Adicione uma nova
-    coluna na tabela, com um botão de remover.
-    Ao clicar nesse botão, a linha da tabela deve ser removida.
-    Faça um pull request no seu repositório, na branch `challenge-31`, e cole
-    o link do pull request no `console.log` abaixo.
-    Faça um pull request, também com a branch `challenge-31`, mas no repositório
-    do curso, para colar o link do pull request do seu repo.
-    */
   
     var ajax = new XMLHttpRequest();
     ajax.open('GET', './data/company.json');
@@ -25,7 +15,7 @@
         return {
             init: function(){
                 addCompanyName();
-                addEventsFunction();
+                loadCars();
             }
         };
     }
@@ -33,48 +23,43 @@
     function addEventsFunction(){
         $submit.addEventListener('click', addCarFunction, false);
         $deleteButtons.on('click', deleteCar);
+        console.log($deleteButtons);
     }
 
     function addCompanyName(){
         ajax.addEventListener('readystatechange', function(){
-            if(requestOk())
+            if(requestOk(ajax))
                 $companyName.textContent = JSON.parse(ajax.responseText).name + ' ' + 
                                            JSON.parse(ajax.responseText).phone;
         }, false)
     }
 
-    function requestOk(){
+    function requestOk(ajax){
         return ajax.status === 200 && ajax.readyState === 4;
     }
 
     function addCarFunction(event){
         event.preventDefault();
         var newItem = createNewItem();
-        $table.appendChild(newItem);
-        $deleteButtons = new DOM('[data-js="deleteCar"]');
+        postData(newItem);
+        updateTable();
         clearFields();
-        addEventsFunction();
+    }
+
+    function postData(item){
+        var post = new XMLHttpRequest();
+        post.open('POST', 'http://localhost:3000/car/');
+        post.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        post.send(item)
     }
 
     function createNewItem(){
-        var $row = doc.createElement('tr');
-        var $td = doc.createElement('td');
-        $inputs.element.forEach(function(input, index){
-            var tdClone = $td.cloneNode(false);
-            if (index === 0){
-                tdClone.appendChild(addImage(input.value));
-                $row.appendChild(tdClone);
-                return;
-            }
-            tdClone.innerHTML = input.value;
-            $row.appendChild(tdClone);
-        });
-        var removeButton = doc.createElement('button');
-        removeButton.textContent = 'Deletar';
-        removeButton.setAttribute('data-js', 'deleteCar');
-        $td.appendChild(removeButton);
-        $row.appendChild($td);
-        return $row;
+        var image = $inputs.getValueByName("image");
+        var brandModel = $inputs.getValueByName("brandModel");
+        var year = $inputs.getValueByName("year");
+        var plate = $inputs.getValueByName("plate");
+        var color = $inputs.getValueByName("color");
+        return `image=${image}&brandModel=${brandModel}&year=${year}&plate=${plate}&color=${color}`;
     }
 
     function addImage(url){
@@ -93,6 +78,80 @@
         event.preventDefault();
         var car = this.parentNode.parentNode;
         car.parentNode.removeChild(car);
+    }
+
+    function loadCars(){
+        var get = getCars();
+        get.addEventListener('readystatechange', function(){
+            if (requestOk(get)){
+                JSON.parse(get.response).forEach(function(car){
+                    addLine(car);
+                });
+                restartButtons();
+                addEventsFunction();
+            }
+        }, false);
+    }
+
+    function updateTable(){
+        var get = getCars();
+        get.addEventListener('readystatechange', function(){
+            if (requestOk(get)){
+                var cars = JSON.parse(get.response);
+                addLine(cars[cars.length-1]);
+                restartButtons();
+                addEventsFunction();
+            }
+        }, false);
+    }
+
+    function getCars(){
+        var get = new XMLHttpRequest();
+        get.open('GET', 'http://localhost:3000/car/')
+        get.send()
+        return get
+    }
+
+    function addLine(car){
+        $table.appendChild(createLine(car));
+    }
+
+    function createLine(car){
+        var row = doc.createElement('tr');
+        var tdImg = doc.createElement('td');
+        var tdBrandModel = tdImg.cloneNode(false);
+        var tdYear = tdImg.cloneNode(false);
+        var tdPlate = tdImg.cloneNode(false);
+        var tdColor = tdImg.cloneNode(false);
+        var tdButton = tdImg.cloneNode(false);
+
+        tdImg.appendChild(addImage(car.image));
+        tdBrandModel.textContent = car.brandModel;
+        tdYear.textContent = car.year;
+        tdPlate.textContent = car.plate;
+        tdColor.textContent = car.color;
+        tdButton.appendChild(createButton(car.plate));
+
+        row.appendChild(tdImg);
+        row.appendChild(tdBrandModel);
+        row.appendChild(tdYear);
+        row.appendChild(tdPlate);
+        row.appendChild(tdColor);
+        row.appendChild(tdButton);
+
+        return row;
+    }
+
+    function createButton(plate){
+        var removeButton = doc.createElement('button');
+        removeButton.textContent = 'Deletar';
+        removeButton.setAttribute('data-js', 'deleteCar');
+        removeButton.setAttribute('name', plate);
+        return removeButton;
+    }
+
+    function restartButtons(){
+        $deleteButtons.restart('[data-js="deleteCar"]');
     }
 
     app().init();

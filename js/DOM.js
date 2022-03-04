@@ -6,6 +6,10 @@
         this.event;
     }
 
+    DOM.prototype.restart = function(datajs){
+        this.element = doc.querySelectorAll(datajs) || '';
+    }
+
     DOM.prototype.on = function (event, func){
         this.func = func;
         this.event = event;
@@ -40,6 +44,14 @@
 
     DOM.prototype.applyFilter = function(func){
         return Array.prototype.filter.call(this.element, func);
+    }
+
+    DOM.prototype.getValueByName = function(inputName){
+        var field = Array.prototype.filter.call(this.element, function(input){
+            return input.name == inputName;
+        });
+
+        return field[0].value;
     }
 
     DOM.prototype.reduceElements = function(func){
